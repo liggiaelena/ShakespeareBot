@@ -1,0 +1,7 @@
+openai-whisper
+chromadb
+sentence-transformers
+anthropic
+edge-tts
+pypdf
+python-dotenv
