@@ -1,8 +1,8 @@
-# AgriBot — Voice-Powered Farming Assistant
+# ShakespeareChat — A Voice-Powered Chatbot That Speaketh as the Bard Himself
 
-## Time
+## The Players of This Noble Work
 
-| Nome | |
+| Name | |
 |---|---|
 | Liggia Cruz | |
 | Chao | |
@@ -10,100 +10,101 @@
 
 ---
 
-## Visão Geral
+## Overview
 
-AgriBot é um chatbot de voz especializado em agricultura, projetado para agricultores rurais em regiões em desenvolvimento. O agricultor faz perguntas falando no seu idioma nativo — espanhol, francês, suaíli, português, entre outros — e recebe a resposta em áudio, sem precisar ler ou digitar nada.
+Hark! ShakespeareChat is a voice-powered chatbot forged for students of art history, wherein the spirit of William Shakespeare himself doth answer their questions. The student speaks aloud — asking about plays, sonnets, themes, historical context, or the literary artistry of the Bard — and receiveth an answer in the very voice and manner of Shakespeare.
 
-O bot é um especialista restrito: só responde sobre agricultura (solo, pragas, irrigação, épocas de plantio, armazenamento pós-colheita). Essa limitação de domínio é intencional — ela garante respostas mais precisas e confiáveis para o agricultor.
+The bot is a specialist of noble but narrow domain: it speaketh only of Shakespeare and his world — his plays, his sonnets, his life, the Elizabethan era, theatrical history, literary themes, and the art history surrounding his works. This restriction of domain is by design, for it ensureth answers most precise, immersive, and trustworthy for the student of art history.
 
 ---
 
-## Pipeline
+## Pipeline — A Play in Four Acts
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                     AGRICULTOR                          │
-│          fala em espanhol, francês, suaíli...           │
+│                   THE ART HISTORY STUDENT               │
+│        asketh a question about Shakespeare aloud        │
 └───────────────────┬─────────────────────────────────────┘
-                    │ arquivo de áudio (.ogg / .wav)
+                    │ an audio file (.ogg / .wav)
                     ▼
 ┌─────────────────────────────────────────────────────────┐
-│  PASSO 1 — STT  (stt/transcriber.py)                    │
-│  Whisper escuta o áudio e devolve:                      │
-│  → texto:   "¿Cuándo debo plantar maíz?"                │
-│  → idioma:  "es"                                        │
+│  ACT I — STT  (stt/transcriber.py)                      │
+│  Whisper doth hearken to the audio and returneth:       │
+│  → text:     "What are the themes of Hamlet?"           │
+│  → language: "en"                                       │
 └───────────────────┬─────────────────────────────────────┘
-                    │ texto + idioma
+                    │ text + language
                     ▼
 ┌─────────────────────────────────────────────────────────┐
-│  PASSO 2 — RAG  (rag/retriever.py)                      │
-│  Busca nos PDFs da FAO os trechos mais relevantes       │
-│  para a pergunta do agricultor                          │
-│  → chunk 1: "O milho germina com solo acima de 10°C..." │
-│  → chunk 2: "Plantio ideal: março a maio em regiões..." │
-│  → chunk 3: "Espaçamento recomendado: 70cm entre..."    │
+│  ACT II — RAG  (rag/retriever.py)                       │
+│  Searcheth through the Shakespeare scrolls and          │
+│  art history texts for the most pertinent passages      │
+│  → chunk 1: "To be, or not to be, that is the…"        │
+│  → chunk 2: "Hamlet explores revenge, mortality…"       │
+│  → chunk 3: "The Elizabethan theatre was shaped by…"    │
 └───────────────────┬─────────────────────────────────────┘
-                    │ texto + idioma + chunks
+                    │ text + language + chunks
                     ▼
 ┌─────────────────────────────────────────────────────────┐
-│  PASSO 3 — LLM  (llm/agent.py)                          │
-│  Claude recebe a pergunta + contexto da FAO e           │
-│  gera uma resposta prática em espanhol                  │
-│  → "Plante maíz entre marzo y mayo cuando el suelo..."  │
+│  ACT III — LLM  (llm/agent.py)                          │
+│  Claude receiveth the question and context, and         │
+│  composeth an answer in the very voice of Shakespeare   │
+│  → "Ah, thou dost ask of Hamlet! In that great work…"  │
 └───────────────────┬─────────────────────────────────────┘
-                    │ resposta em texto
+                    │ answer as text
                     ▼
 ┌─────────────────────────────────────────────────────────┐
-│  PASSO 4 — TTS  (tts/synthesizer.py)                    │
-│  edge-tts converte o texto em áudio com voz neural      │
-│  → output.mp3  (voz masculina em espanhol)              │
+│  ACT IV — TTS  (tts/synthesizer.py)                     │
+│  edge-tts doth transform the text into audio            │
+│  with a voice most fitting for the Bard's own words     │
+│  → output.mp3                                           │
 └───────────────────┬─────────────────────────────────────┘
-                    │ arquivo de áudio
+                    │ an audio file
                     ▼
 ┌─────────────────────────────────────────────────────────┐
-│                     AGRICULTOR                          │
-│              ouve a resposta em áudio                   │
+│                   THE ART HISTORY STUDENT               │
+│         heareth Shakespeare's answer in audio           │
 └─────────────────────────────────────────────────────────┘
 ```
 
-### Pré-processamento (roda uma vez)
+### Pre-processing (Performed But Once)
 
-Antes de usar o bot, os documentos da FAO precisam ser indexados:
+Before the bot may be consulted, the texts and documents must be indexed — a ritual performed only once:
 
 ```
-PDFs da FAO → ingestor.py → ChromaDB (banco vetorial salvo em disco)
+Shakespeare plays, sonnets & art history PDFs → ingestor.py → ChromaDB (a vector store saved upon disk)
 ```
 
 ---
 
-## Estrutura de Pastas
+## The Structure of Folders — A Map of the Kingdom
 
 ```
-agribot/
-├── main.py                  # orquestra o pipeline completo
-├── config.py                # variáveis de ambiente e configurações
+shakespearechat/
+├── main.py                  # orchestrates the full pipeline
+├── config.py                # environment variables and configuration
 ├── requirements.txt
-├── .env                     # API keys (nunca sobe pro git)
+├── .env                     # API keys (never committed to git)
 ├── .gitignore
 ├── README.md
 │
 ├── stt/
-│   └── transcriber.py       # áudio → texto + idioma
+│   └── transcriber.py       # audio → text + language
 │
 ├── rag/
-│   ├── embedder.py          # texto → vetores
-│   ├── vector_store.py      # gerencia o ChromaDB
-│   ├── retriever.py         # busca os chunks mais relevantes
-│   └── ingestor.py          # lê PDFs e popula o banco
+│   ├── embedder.py          # text → vectors
+│   ├── vector_store.py      # manages ChromaDB
+│   ├── retriever.py         # seeketh the most relevant chunks
+│   └── ingestor.py          # readeth documents and populateth the store
 │
 ├── llm/
-│   └── agent.py             # monta o prompt e chama a API do Claude
+│   └── agent.py             # buildeth the Shakespeare prompt and calleth Claude's API
 │
 ├── tts/
-│   └── synthesizer.py       # texto → áudio
+│   └── synthesizer.py       # text → audio
 │
 ├── data/
-│   └── docs/                # PDFs agrícolas da FAO
+│   └── docs/                # Shakespeare's works and art history texts (PDFs)
 │
 └── tests/
     ├── test_stt.py
@@ -113,94 +114,132 @@ agribot/
 
 ---
 
-## Bibliotecas Utilizadas
+## Libraries Employed in This Endeavour
 
 ### STT — Speech to Text
-| Biblioteca | Versão | Função |
+| Library | Version | Purpose |
 |---|---|---|
-| `openai-whisper` | latest | Transcrição de áudio multilíngue local, sem custo por chamada |
+| `openai-whisper` | latest | Multilingual audio transcription, local and without cost per call |
 
 ### RAG — Retrieval-Augmented Generation
-| Biblioteca | Versão | Função |
+| Library | Version | Purpose |
 |---|---|---|
-| `sentence-transformers` | latest | Gera embeddings multilíngues com o modelo `paraphrase-multilingual-MiniLM-L12-v2` |
-| `chromadb` | latest | Banco vetorial persistente em disco para armazenar e buscar chunks dos PDFs |
-| `pypdf` | latest | Leitura e extração de texto dos PDFs da FAO |
+| `sentence-transformers` | latest | Generateth multilingual embeddings with `paraphrase-multilingual-MiniLM-L12-v2` |
+| `chromadb` | latest | Persistent vector store on disk for storing and seeking document chunks |
+| `pypdf` | latest | Readeth and extracteth text from Shakespeare and art history PDFs |
 
 ### LLM — Large Language Model
-| Biblioteca | Versão | Função |
+| Library | Version | Purpose |
 |---|---|---|
-| `anthropic` | latest | SDK oficial para chamar a API do Claude (claude-sonnet-4-6) |
+| `anthropic` | latest | Official SDK to summon the API of Claude (claude-sonnet-4-6), prompted to speak as Shakespeare |
 
 ### TTS — Text to Speech
-| Biblioteca | Versão | Função |
+| Library | Version | Purpose |
 |---|---|---|
-| `edge-tts` | latest | Síntese de voz neural via Microsoft Edge, gratuita, suporta EN/ES/FR/PT/SW/AR/HI/HA |
+| `edge-tts` | latest | Neural voice synthesis via Microsoft Edge, free of charge, supporting multiple languages |
 
-### Utilitários
-| Biblioteca | Versão | Função |
+### Utilities
+| Library | Version | Purpose |
 |---|---|---|
-| `python-dotenv` | latest | Carrega variáveis de ambiente do arquivo `.env` |
+| `python-dotenv` | latest | Loadeth environment variables from the `.env` file |
 
 ---
 
-## Modelos de IA Utilizados
+## AI Models Employed
 
-| Modelo | Onde roda | Custo | Função |
+| Model | Where it runneth | Cost | Purpose |
 |---|---|---|---|
-| `Whisper base` | Local (CPU/GPU) | Gratuito | Transcrição de áudio |
-| `paraphrase-multilingual-MiniLM-L12-v2` | Local | Gratuito | Embeddings para busca semântica |
-| `claude-sonnet-4-6` | API Anthropic | ~$0,005/pergunta | Geração da resposta agrícola |
-| Vozes neurais Microsoft | API edge-tts | Gratuito | Síntese de voz multilíngue |
+| `Whisper base` | Local (CPU/GPU) | Free | Audio transcription |
+| `paraphrase-multilingual-MiniLM-L12-v2` | Local | Free | Embeddings for semantic search |
+| `claude-sonnet-4-6` | Anthropic API | ~$0.005/question | Generating answers in Shakespeare's voice |
+| Microsoft Neural Voices | edge-tts API | Free | Voice synthesis for the Bard's spoken word |
 
 ---
 
-## Idiomas Suportados
+## Domain of Knowledge
 
-| Código | Idioma | Voz TTS |
-|---|---|---|
-| `en` | Inglês | en-US-GuyNeural |
-| `es` | Espanhol | es-ES-AlvaroNeural |
-| `fr` | Francês | fr-FR-HenriNeural |
-| `pt` | Português | pt-BR-AntonioNeural |
-| `sw` | Suaíli | sw-KE-RafikiNeural |
-| `ar` | Árabe | ar-SA-HamedNeural |
-| `hi` | Hindi | hi-IN-MadhurNeural |
-| `ha` | Hauçá | ha-NE-AbdullahNeural |
+ShakespeareChat answereth questions within these scholarly realms:
 
-O idioma é detectado automaticamente pelo Whisper a partir do áudio do agricultor.
+| Domain | Examples |
+|---|---|
+| **Shakespeare's Plays** | Themes, characters, plot, language, context of Hamlet, Macbeth, Othello, King Lear, etc. |
+| **Shakespeare's Sonnets** | Interpretation, themes, structure, historical significance |
+| **Elizabethan Era** | Theatre, society, politics, culture of 16th–17th century England |
+| **Literary Analysis** | Dramatic devices, poetic forms, symbolism, narrative structure |
+| **Art History Context** | Visual art, patronage, and culture surrounding Shakespeare's world |
+| **Shakespeare's Life** | Biography, influences, legacy, the Globe Theatre |
 
 ---
 
-## Como Rodar
+## How to Run — Instructions for the Eager Student
+
+### Backend (FastAPI)
 
 ```bash
-# 1. Criar e ativar o ambiente virtual
+# 1. Create and activate the virtual environment (from Agribot/)
 python -m venv venv
 venv\Scripts\activate        # Windows
 source venv/bin/activate     # Linux/Mac
 
-# 2. Instalar dependências
+# 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. Configurar a API key no .env
+# 3. Set the API key in .env
 ANTHROPIC_API_KEY=sk-ant-...
 
-# 4. Adicionar PDFs da FAO em data/docs/ e rodar o ingestor (uma vez)
+# 4. Add Shakespeare texts and art history PDFs to data/docs/ and run the ingestor (once only)
 python -m rag.ingestor
 
-# 5. Rodar o bot com um áudio
-python main.py minha_pergunta.ogg resposta.mp3
+# 5. Start the API server (from Agribot/)
+python -m uvicorn api.server:app --reload
+```
+
+The API shall be served at `http://localhost:8000`.
+
+### Frontend (React + Vite)
+
+```bash
+# In a separate terminal, from the frontend/ directory
+cd ../frontend
+
+npm install
+
+npm run dev
+```
+
+The frontend shall open at `http://localhost:5173`.
+
+---
+
+## Troubleshooting — When Fortune Doth Not Favour Thee
+
+### CORS error in the browser (`No 'Access-Control-Allow-Origin' header`)
+
+This happeneth when an old backend process is still running on port 8000, and thy new server hath not truly taken its place. The stale process blocketh the request without the proper CORS headers.
+
+**How to slay the old process:**
+
+```bash
+# Git Bash / Linux / Mac
+taskkill //F //IM python.exe   # Windows Git Bash
+# or
+kill $(lsof -t -i:8000)        # Linux / Mac
+```
+
+Then restart the backend:
+
+```bash
+python -m uvicorn api.server:app --reload
 ```
 
 ---
 
-## Testes
+## Tests — That Truth May Be Proven
 
 ```bash
 pytest tests/
 ```
 
-- `test_stt.py` — testa transcrição com áudio sintético silencioso
-- `test_rag.py` — testa embeddings, inserção e busca vetorial com banco em memória
-- `test_llm.py` — testa o agent com mock da API (não consome créditos)
+- `test_stt.py` — testeth transcription with silent synthetic audio
+- `test_rag.py` — testeth embeddings, insertion and vector search with an in-memory store
+- `test_llm.py` — testeth the agent with a mocked API (consumeth no credits)
