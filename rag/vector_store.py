@@ -6,7 +6,7 @@ class VectorStore:
     def __init__(self):
         self.client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
         self.collection = self.client.get_or_create_collection(
-            name="agribot_docs",
+            name="shakespeare_docs",
             metadata={"hnsw:space": "cosine"},
         )
 
