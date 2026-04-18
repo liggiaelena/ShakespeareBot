@@ -33,11 +33,14 @@ def test_vector_store_add_and_query(store):
     docs = ["Wheat rust is a fungal disease. Apply fungicide early."]
     ids = [str(uuid.uuid4())]
     embeddings = embedder.embed(docs)
-    store.add(ids=ids, embeddings=embeddings, documents=docs)
+    store.add(ids=ids, embeddings=embeddings, documents=docs,
+              metadatas=[{"source": "test_doc.txt"}])
 
     results = store.query(embedder.embed(["rust disease wheat"])[0], top_k=1)
     assert len(results) == 1
-    assert "rust" in results[0].lower()
+    doc_text, source = results[0]
+    assert "rust" in doc_text.lower()
+    assert source == "test_doc.txt"
 
 
 def test_retriever_with_empty_store_returns_list():

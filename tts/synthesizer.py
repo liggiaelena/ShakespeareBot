@@ -1,9 +1,10 @@
 import asyncio
 import edge_tts
 
-# Neural voices by language (edge-tts)
+# Neural voices by language (edge-tts free library)
+# en-GB-RyanNeural — British male, expressive and theatrical; period-appropriate for Shakespeare.
 _VOICES: dict[str, str] = {
-    "en": "en-US-GuyNeural",
+    "en": "en-GB-RyanNeural",
     "es": "es-ES-AlvaroNeural",
     "fr": "fr-FR-HenriNeural",
     "pt": "pt-BR-AntonioNeural",
@@ -12,7 +13,7 @@ _VOICES: dict[str, str] = {
     "hi": "hi-IN-MadhurNeural",
     "ha": "ha-NE-AbdullahNeural",
 }
-_DEFAULT_VOICE = "en-US-GuyNeural"
+_DEFAULT_VOICE = "en-GB-RyanNeural"
 
 
 class Synthesizer:
@@ -22,9 +23,20 @@ class Synthesizer:
         language: str = "en",
         output_path: str = "output.mp3",
     ) -> str:
-        """Converts text to audio and saves to output_path. Returns the path."""
+        """Sync: converts text to audio and saves to output_path. Returns the path."""
         voice = _VOICES.get(language, _DEFAULT_VOICE)
         asyncio.run(self._synthesize(text, voice, output_path))
+        return output_path
+
+    async def speak_async(
+        self,
+        text: str,
+        language: str = "en",
+        output_path: str = "output.mp3",
+    ) -> str:
+        """Async: for use inside a running event loop (streaming endpoints)."""
+        voice = _VOICES.get(language, _DEFAULT_VOICE)
+        await self._synthesize(text, voice, output_path)
         return output_path
 
     @staticmethod

@@ -19,11 +19,15 @@ def _create_silent_wav(path: str, duration_s: float = 1.0, sample_rate: int = 16
 def test_transcriber_returns_tuple():
     transcriber = Transcriber(model_name="tiny")
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-        _create_silent_wav(tmp.name)
+        tmp_path = tmp.name
+    _create_silent_wav(tmp_path)
+    try:
+        text, language = transcriber.transcribe(tmp_path)
+        assert isinstance(text, str)
+        assert isinstance(language, str)
+        assert len(language) == 2  # ISO code e.g. "en"
+    finally:
         try:
-            text, language = transcriber.transcribe(tmp.name)
-            assert isinstance(text, str)
-            assert isinstance(language, str)
-            assert len(language) == 2  # ISO code e.g. "en"
-        finally:
-            os.unlink(tmp.name)
+            os.unlink(tmp_path)
+        except PermissionError:
+            pass  # Windows: Whisper may still hold the file handle; safe to ignore
