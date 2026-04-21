@@ -1,0 +1,50 @@
+stages:
+  prepare:
+    cmd: python src/pipeline/prepare.py
+    deps:
+      - src/pipeline/prepare.py
+      - data/docs/
+    outs:
+      - data/processed/chunks.json
+      - data/processed/stats.json
+
+  featurize:
+    cmd: python src/pipeline/featurize.py
+    deps:
+      - src/pipeline/featurize.py
+      - data/processed/chunks.json
+    outs:
+      - data/features/tfidf_matrix.npz
+      - data/features/tfidf_vectorizer.pkl
+      - data/features/train_test_split.pkl
+
+  train:
+    cmd: python src/pipeline/train.py
+    deps:
+      - src/pipeline/train.py
+      - data/features/tfidf_matrix.npz
+      - data/features/train_test_split.pkl
+    outs:
+      - model/nb_tfidf.pkl
+      - model/lr_svd.pkl
+      - model/lr_pca.pkl
+      - model/svd.pkl
+      - model/pca.pkl
+      - model/scaler.pkl
+
+  evaluate:
+    cmd: python src/pipeline/evaluate.py
+    deps:
+      - src/pipeline/evaluate.py
+      - model/nb_tfidf.pkl
+      - model/lr_svd.pkl
+      - model/lr_pca.pkl
+      - model/svd.pkl
+      - model/pca.pkl
+      - model/scaler.pkl
+    metrics:
+      - metrics/scores.json:
+          cache: false
+    plots:
+      - metrics/confusion_matrices.png:
+          cache: false

@@ -234,6 +234,68 @@ python -m uvicorn api.server:app --reload
 
 ---
 
+## ML Pipeline (DVC) — The Tragedy Classifier
+
+A reproducible machine-learning pipeline classifies Shakespeare text chunks as **Tragedy** or **Non-Tragedy** using [DVC (Data Version Control)](https://dvc.org).
+
+### Pipeline DAG
+
+```
+ +---------+
+ | prepare |
+ +---------+
+      *
+      *
+ +-----------+
+ | featurize |
+ +-----------+
+      *
+      *
+  +-------+
+  | train |
+  +-------+
+      *
+      *
+ +----------+
+ | evaluate |
+ +----------+
+```
+
+| Stage | Script | Description |
+|---|---|---|
+| `prepare` | `src/pipeline/prepare.py` | Chunk all `.txt` docs, label (Tragedy=1 / Non-Tragedy=0), balance classes |
+| `featurize` | `src/pipeline/featurize.py` | TF-IDF vectorisation (5,000 features, bigrams), 75/25 stratified split |
+| `train` | `src/pipeline/train.py` | Train 3 models: Naive Bayes, LR+SVD, LR+PCA |
+| `evaluate` | `src/pipeline/evaluate.py` | Compute accuracy / precision / recall / F1; save confusion matrices |
+
+### Reproduce the pipeline
+
+```bash
+# Ensure the 10 source .txt files are in data/docs/
+dvc repro
+```
+
+DVC will skip stages whose inputs have not changed. To force a full re-run:
+
+```bash
+dvc repro --force
+```
+
+### Model metrics (`dvc metrics show`)
+
+| Model | Accuracy | Precision | Recall | F1 |
+|---|---|---|---|---|
+| Naive Bayes + TF-IDF | **95.35%** | 93.73% | **97.21%** | **95.44%** |
+| Logistic Regression + SVD | 94.56% | 94.67% | 94.42% | 94.55% |
+| Logistic Regression + PCA | 94.36% | **94.77%** | 93.89% | 94.33% |
+
+### GitHub Pages Report
+
+Full report with confusion-matrix plots and the rendered notebook:
+**[https://&lt;your-github-username&gt;.github.io/ShakespeareBot/](https://your-github-username.github.io/ShakespeareBot/)**
+
+---
+
 ## Tests — That Truth May Be Proven
 
 ```bash

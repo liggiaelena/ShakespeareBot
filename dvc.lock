@@ -1,0 +1,127 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python src/pipeline/prepare.py
+    deps:
+    - path: data/docs/
+      hash: md5
+      md5: d4ee98ddb50358febd55fff01df81772.dir
+      size: 10412155
+      nfiles: 10
+    - path: src/pipeline/prepare.py
+      hash: md5
+      md5: b95302bd95e172922f4529a6ef232f2f
+      size: 3957
+    outs:
+    - path: data/processed/chunks.json
+      hash: md5
+      md5: 809db8450214c1444d0c45b8cd4a1a02
+      size: 10757914
+    - path: data/processed/stats.json
+      hash: md5
+      md5: 0443fefede6d57582f4ed8a97390eec7
+      size: 147
+  featurize:
+    cmd: python src/pipeline/featurize.py
+    deps:
+    - path: data/processed/chunks.json
+      hash: md5
+      md5: 809db8450214c1444d0c45b8cd4a1a02
+      size: 10757914
+    - path: src/pipeline/featurize.py
+      hash: md5
+      md5: 0b5716bfbe1acb2b00e1761420677747
+      size: 2585
+    outs:
+    - path: data/features/tfidf_matrix.npz
+      hash: md5
+      md5: 47ffcf4976ff51e50bd704b9b8efc49d
+      size: 5015438
+    - path: data/features/tfidf_vectorizer.pkl
+      hash: md5
+      md5: 898118056decc2d3ce2df788fa56961e
+      size: 181399
+    - path: data/features/train_test_split.pkl
+      hash: md5
+      md5: 6058d357f6907936422da53064743edd
+      size: 6782049
+  train:
+    cmd: python src/pipeline/train.py
+    deps:
+    - path: data/features/tfidf_matrix.npz
+      hash: md5
+      md5: 47ffcf4976ff51e50bd704b9b8efc49d
+      size: 5015438
+    - path: data/features/train_test_split.pkl
+      hash: md5
+      md5: 6058d357f6907936422da53064743edd
+      size: 6782049
+    - path: src/pipeline/train.py
+      hash: md5
+      md5: 2e252611121aa70244003ee3344546c1
+      size: 3438
+    outs:
+    - path: model/lr_pca.pkl
+      hash: md5
+      md5: b50d12637175dd91d656c3adc51b9779
+      size: 1509
+    - path: model/lr_svd.pkl
+      hash: md5
+      md5: 63e4a7b006a5c5b0f459af911d1aa613
+      size: 1509
+    - path: model/nb_tfidf.pkl
+      hash: md5
+      md5: 541fbf0d1d93ff017ea1f32840ac0db3
+      size: 160617
+    - path: model/pca.pkl
+      hash: md5
+      md5: 5127b207ab253be21159052af5027827
+      size: 4043181
+    - path: model/scaler.pkl
+      hash: md5
+      md5: 1ea0a52e56dd8a330889ef2421b18770
+      size: 120438
+    - path: model/svd.pkl
+      hash: md5
+      md5: 9f17aac70e67cbcd9a4347734691c7e5
+      size: 4002995
+  evaluate:
+    cmd: python src/pipeline/evaluate.py
+    deps:
+    - path: model/lr_pca.pkl
+      hash: md5
+      md5: b50d12637175dd91d656c3adc51b9779
+      size: 1509
+    - path: model/lr_svd.pkl
+      hash: md5
+      md5: 63e4a7b006a5c5b0f459af911d1aa613
+      size: 1509
+    - path: model/nb_tfidf.pkl
+      hash: md5
+      md5: 541fbf0d1d93ff017ea1f32840ac0db3
+      size: 160617
+    - path: model/pca.pkl
+      hash: md5
+      md5: 5127b207ab253be21159052af5027827
+      size: 4043181
+    - path: model/scaler.pkl
+      hash: md5
+      md5: 1ea0a52e56dd8a330889ef2421b18770
+      size: 120438
+    - path: model/svd.pkl
+      hash: md5
+      md5: 9f17aac70e67cbcd9a4347734691c7e5
+      size: 4002995
+    - path: src/pipeline/evaluate.py
+      hash: md5
+      md5: 06ecc8504259128bb5c279bf64d991e8
+      size: 4439
+    outs:
+    - path: metrics/confusion_matrices.png
+      hash: md5
+      md5: 699068f72f98eb701e21e906ee25a2bf
+      size: 102995
+    - path: metrics/scores.json
+      hash: md5
+      md5: ebfc256dc963f1b3ec7b6c5d3e0d4e0b
+      size: 426

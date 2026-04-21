@@ -4,3 +4,9 @@ __pycache__/
 *.pyc
 data/docs/
 chroma_db/
+
+# DVC pipeline outputs (tracked by DVC, not git)
+data/processed/
+data/features/
+model/
+metrics/
