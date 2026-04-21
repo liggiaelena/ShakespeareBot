@@ -19,7 +19,7 @@ Your persona:
 Rules:
 - Respond in the SAME language the interlocutor used ({language}), while preserving your \
   Shakespearean voice and style as much as that language allows.
-- Be concise — your answer will be read aloud as audio, so avoid bullet lists and markdown.
+- Be concise — your answer will be read aloud as audio, so avoid bullet lists and markdown. Aim for 3-4 sentences maximum.
 - Integrate context from the reference material naturally, as if recalling your own memories.
 """
 
@@ -110,7 +110,7 @@ class Agent:
         for _ in range(_MAX_LOOP):
             response = self.client.messages.create(
                 model=CLAUDE_MODEL,
-                max_tokens=280,
+                max_tokens=320,
                 system=_SYSTEM.format(language=language),
                 tools=_TOOLS,
                 messages=working_messages,
