@@ -23,6 +23,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import WHISPER_MODEL
 from llm.agent import Agent
 from rag.retriever import Retriever
+from src.classifier import classify_query
 from stt.transcriber import Transcriber
 from tts.synthesizer import Synthesizer
 
@@ -118,12 +119,25 @@ def _split_sentences(text: str) -> list[str]:
 
 def _build_response(question: str, language: str) -> dict:
     """Non-streaming path — kept for fallback/testing. Agentic LLM → TTS."""
+    # 1. Classify the query
+    classification = classify_query(question)
+
+    # 2. Enrich the search query toward the right part of the corpus
+    search_query = question
+    if classification["label"] == "tragedy" and classification["confidence"] > 0.6:
+        search_query = question + " tragedy themes characters"
+    elif classification["label"] == "non-tragedy" and classification["confidence"] > 0.6:
+        search_query = question + " history comedy sonnets"
+
+    # 3. Search with the enriched query
     history = _get_history()
     text_response = _agent.ask(
         question=question,
-        search_fn=_retriever.search,
+        search_fn=lambda q: _retriever.search(search_query),
         history=history,
         language=language,
+        query_type=classification["label"],
+        confidence=classification["confidence"],
     )
     _append_history(question, text_response)
 
@@ -133,7 +147,11 @@ def _build_response(question: str, language: str) -> dict:
     with open(tmp_path, "rb") as f:
         audio_b64 = base64.b64encode(f.read()).decode()
     os.unlink(tmp_path)
-    return {"text": text_response, "audio_base64": audio_b64}
+
+    result = {"text": text_response, "audio_base64": audio_b64}
+    result["query_type"] = classification["label"]
+    result["confidence"] = round(classification["confidence"], 3)
+    return result
 
 
 async def _stream_response(question: str, language: str, user_text: str):
@@ -141,17 +159,30 @@ async def _stream_response(question: str, language: str, user_text: str):
 
     Yields SSE lines:
         data: {"type": "audio_chunk", "text": "...", "audio_base64": "..."}
-        data: {"type": "done", "full_text": "...", "user_text": "..."}
+        data: {"type": "done", "full_text": "...", "user_text": "...",
+               "query_type": "...", "confidence": ...}
     """
+    # 1. Classify the query
+    classification = classify_query(question)
+
+    # 2. Enrich the search query toward the right part of the corpus
+    search_query = question
+    if classification["label"] == "tragedy" and classification["confidence"] > 0.6:
+        search_query = question + " tragedy themes characters"
+    elif classification["label"] == "non-tragedy" and classification["confidence"] > 0.6:
+        search_query = question + " history comedy sonnets"
+
     history = _get_history()
 
     # Run the agentic loop in a thread (it calls blocking Anthropic SDK + embedder)
     text_response = await asyncio.to_thread(
         _agent.ask,
         question=question,
-        search_fn=_retriever.search,
+        search_fn=lambda q: _retriever.search(search_query),
         history=history,
         language=language,
+        query_type=classification["label"],
+        confidence=classification["confidence"],
     )
     _append_history(question, text_response)
 
@@ -176,7 +207,13 @@ async def _stream_response(question: str, language: str, user_text: str):
         event = json.dumps({"type": "audio_chunk", "text": sentence, "audio_base64": audio_b64})
         yield f"data: {event}\n\n"
 
-    done = json.dumps({"type": "done", "full_text": text_response, "user_text": user_text})
+    done = json.dumps({
+        "type":       "done",
+        "full_text":  text_response,
+        "user_text":  user_text,
+        "query_type": classification["label"],
+        "confidence": round(classification["confidence"], 3),
+    })
     yield f"data: {done}\n\n"
 
 

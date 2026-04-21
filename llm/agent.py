@@ -93,6 +93,8 @@ class Agent:
         search_fn,
         history: list[dict],
         language: str,
+        query_type: str = "unknown",
+        confidence: float = 0.0,
     ) -> str:
         """Agentic loop: Claude decides whether to search, answer directly, or clarify.
 
@@ -105,7 +107,18 @@ class Agent:
         Returns:
             Shakespeare's final text response.
         """
-        working_messages = list(history) + [{"role": "user", "content": question}]
+        # Prepend classification hint to the user turn so Claude has genre context.
+        # This is NOT stored in conversation history (server.py stores plain question).
+        if query_type != "unknown":
+            user_content = (
+                f"Query classification: {query_type} "
+                f"(ML classifier confidence: {confidence:.0%})\n\n"
+                f"{question}"
+            )
+        else:
+            user_content = question
+
+        working_messages = list(history) + [{"role": "user", "content": user_content}]
 
         for _ in range(_MAX_LOOP):
             response = self.client.messages.create(
