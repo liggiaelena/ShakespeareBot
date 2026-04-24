@@ -10,6 +10,16 @@
 
 ---
 
+## Project Resources
+
+| Resource | Link |
+|---|---|
+| GitHub Repository | [github.com/liggiaelena/ShakespeareBot](https://github.com/liggiaelena/ShakespeareBot) |
+| GitHub Pages Report | [liggiaelena.github.io/ShakespeareBot](https://liggiaelena.github.io/ShakespeareBot/) |
+| Presentation Slides | [ShakespeareBot_Presentation.pdf](ShakespeareBot_Presentation.pdf) |
+
+---
+
 ## Overview
 
 Hark! ShakespeareChat is a voice-powered chatbot forged for students of art history, wherein the spirit of William Shakespeare himself doth answer their questions. The student speaks aloud — asking about plays, sonnets, themes, historical context, or the literary artistry of the Bard — and receiveth an answer in the very voice and manner of Shakespeare.
